@@ -1,0 +1,4 @@
+[workspace]
+members = [
+    "src/bookyie_backend",
+]

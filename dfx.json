@@ -1,0 +1,30 @@
+{
+  "canisters": {
+    "bookyie_backend": {
+      "candid": "src/bookyie_backend/bookyie_backend.did",
+      "package": "bookyie_backend",
+      "type": "rust"
+    },
+    "bookyie_frontend": {
+      "dependencies": [
+        "bookyie_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/bookyie_frontend/src/index.html"
+      },
+      "source": [
+        "src/bookyie_frontend/assets",
+        "dist/bookyie_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
