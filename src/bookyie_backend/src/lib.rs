@@ -45,13 +45,15 @@ thread_local! {
 }
 
 #[ic_cdk::update]
-fn create_user(user: users::User) -> Option<users::User> {
+fn create_user() -> Option<users::User> {
     let id = ID_COUNTER
         .with(|counter| {
             let current_value = *counter.borrow().get();
-            counter.borrow_mut().set(current_value + 1)
+            counter.borrow_mut().set(current_value +  1)
         })
-        .expect("failed to update counter");
+        .map_err(|_| Error::Internal {
+            msg: "failed to update counter".to_string(),
+        })?;
     let user = users::User {
         id,
         date_joined: time(),
@@ -95,15 +97,36 @@ fn _add_user(user: users::User) {
 }
 
 fn _fetch_user(id: &u64) -> Option<users::User> {
-    USERSSTORE.with(|s| s.borrow().get(id))
+    let user = USERSSTORE.with(|s| s.borrow().get(id));
+    if user.is_empty() {
+        Err(Error::NotFound {
+            msg: format!("user unavailable..."),
+        })
+    } else {
+        Some(user)
+    }
 }
 
 fn _fetch_books() -> Option<Vec<BooksData>> {
-    Some(BOOKSSTORE.with(|s| s.borrow().iter().collect()))
+    let books = BOOKSSTORE.with(|s| s.borrow().iter().collect());
+    if books.is_empty() {
+        Err(Error::NotFound {
+            msg: format!("books unavailable..."),
+        })
+    } else {
+        Some(books)
+    }
 }
 
 fn _fetch_review(id: &u64) -> Option<reviews::Review> {
-    REVIEWSSTORE.with(|s| s.borrow().get(id))
+    let review = REVIEWSSTORE.with(|s| s.borrow().get(id));
+    if review.is_empty(){
+        Err(Error::NotFound {
+            msg: format!("review unavailable..."),
+        })
+    } else {
+        Some(review)
+    }
 }
 
 #[derive(candid::CandidType, Deserialize, Serialize)]
